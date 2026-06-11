@@ -24,15 +24,7 @@ _CLIMATE_NORMALS = {
     7: (31, 25), 8: (33, 26), 9: (28, 21), 10: (22, 14), 11: (17, 9), 12: (12, 4),
 }
 
-# TDS 季節イベントの開催パターン（月日ベース）→ DB に存在するイベント名
-_EVENT_SEASONS = [
-    ((7, 1),  (8, 31),  "サマーフェスティバル2024"),
-    ((9, 2),  (10, 31), "ディズニー・ハロウィーン2024"),
-    ((11, 1), (12, 25), "ディズニー・クリスマス2024"),
-    ((12, 26), (12, 31), "ディズニー・ニューイヤーズ・カウントダウン"),
-    ((1, 1),  (1, 7),   "ディズニー・ニューイヤーズ・カウントダウン"),
-    ((3, 20), (4, 20),  "ディズニー・イースター2025"),
-]
+from engine.event_calendar import event_for_date
 
 # 学校の長期休暇（月日ベース）
 _SCHOOL_VACATIONS = [
@@ -97,13 +89,6 @@ def _is_holiday_or_vacation(target: date) -> bool:
     return any(_in_md_range(target, s, e) for s, e in _SCHOOL_VACATIONS)
 
 
-def _event_for(target: date) -> str | None:
-    for start_md, end_md, name in _EVENT_SEASONS:
-        if _in_md_range(target, start_md, end_md):
-            return name
-    return None
-
-
 def build_auto_context(target_date: str) -> dict[str, Any]:
     """
     日付文字列(YYYY-MM-DD)から環境情報をすべて自動導出する。
@@ -128,5 +113,5 @@ def build_auto_context(target_date: str) -> dict[str, Any]:
         "temp_min":       wx["temp_min"],
         "weather_source": wx["source"],
         "is_holiday":     int(_is_holiday_or_vacation(target)),
-        "event_name":     _event_for(target),
+        "event_name":     event_for_date(target),
     }

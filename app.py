@@ -131,3 +131,8 @@ with st.expander("🔍 予測のもとにした「にている日」"):
         use_container_width=True,
         hide_index=True,
     )
+
+st.caption(
+    "🕒 待ち時間データ: Powered by [Queue-Times.com](https://queue-times.com/) ／ "
+    "🌤️ 気象データ: [Open-Meteo](https://open-meteo.com/)"
+)
