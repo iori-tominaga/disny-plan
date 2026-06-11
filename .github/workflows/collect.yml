@@ -19,9 +19,9 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -35,7 +35,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/real_waits
+          # 閉園時間帯は CSV が生成されないため、存在チェックしてから add する
+          [ -d data/real_waits ] && git add data/real_waits
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
