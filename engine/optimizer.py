@@ -76,9 +76,15 @@ def optimize_route(
     predicted_waits: pd.DataFrame,
     start_hour: int,
     end_hour: int,
+    objective: str = "makespan",
 ) -> list[dict[str, Any]]:
     """
     最適巡回ルートを計算する。
+
+    objective:
+      "makespan" — 最終体験終了時刻を最小化（早く全部回り終える）
+      "min_wait" — 待ち時間の合計を最小化（各アトラクションを1日で
+                   いちばん空いているタイミングに配置。空き時間は気にしない）
 
     Returns
     -------
@@ -154,10 +160,23 @@ def optimize_route(
             model.Add(arrival[j] >= depart[i] + wm).OnlyEnforceIf(lit[(i + 1, j + 1)])
     # ゲートへ戻るアーク (i+1, 0) は終了を意味するだけなので制約なし
 
-    # ── 目的関数: 最終体験終了時刻の最小化 ─────────────────────────
-    makespan = model.NewIntVar(start_min, end_min, "makespan")
-    model.AddMaxEquality(makespan, depart)
-    model.Minimize(makespan)
+    # ── 目的関数 ───────────────────────────────────────────────────
+    if objective == "min_wait":
+        # 待ち時間合計を最優先で最小化し、同点なら歩行距離が短い方を選ぶ
+        walk_terms = []
+        for (i, j), l in lit.items():
+            if j == 0:
+                continue
+            if i == 0:
+                wm = walk_min(_ENTRANCE_PROXY, target_attractions[j - 1]) + _GATE_MINUTES
+            else:
+                wm = walk_min(target_attractions[i - 1], target_attractions[j - 1])
+            walk_terms.append(wm * l)
+        model.Minimize(10 * sum(wait_v) + sum(walk_terms))
+    else:
+        makespan = model.NewIntVar(start_min, end_min, "makespan")
+        model.AddMaxEquality(makespan, depart)
+        model.Minimize(makespan)
 
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = _SOLVER_TIME_LIMIT_SEC

@@ -5,3 +5,5 @@ scipy>=1.12.0
 # 9.13 以降は Windows で CP-SAT solve がクラッシュするため 9.12 系に固定
 ortools==9.12.4544
 plotly>=5.20.0
+requests>=2.31.0
+jpholiday>=0.1.10

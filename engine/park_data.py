@@ -37,6 +37,17 @@ ATTRACTIONS: dict[str, dict] = {
 
 DEFAULT_RIDE_MINUTES = 5
 
+# エリア別の雰囲気絵文字（UI 表示用）
+AREA_EMOJI = {
+    "MI": "🌋", "LRD": "🗿", "AW": "🗽", "PD": "🚤",
+    "AC": "🧞", "ML": "🧜‍♀️", "MH": "⛵", "FS": "🧚",
+}
+
+
+def attraction_emoji(attraction_id: str) -> str:
+    area = ATTRACTIONS.get(attraction_id, {}).get("area", "")
+    return AREA_EMOJI.get(area, "🎠")
+
 
 def ride_minutes(attraction_id: str) -> int:
     return ATTRACTIONS.get(attraction_id, {}).get("ride_minutes", DEFAULT_RIDE_MINUTES)
