@@ -44,11 +44,14 @@ def load_event_options() -> list[str]:
 
 
 if not os.path.exists(DB_PATH):
-    st.error(
-        "データベースが見つかりません。先に "
-        "`python scripts/generate_dummy_data.py` を実行してください。"
-    )
-    st.stop()
+    # クラウドデプロイ等の初回起動時は DB を自動生成する（冪等スクリプト）
+    with st.spinner("初回起動: ダミーデータベースを生成しています（数十秒）..."):
+        import sys
+        sys.path.insert(
+            0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+        )
+        import generate_dummy_data
+        generate_dummy_data.main()
 
 cond = render_input_panel(load_event_options())
 
