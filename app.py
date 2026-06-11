@@ -34,15 +34,32 @@ st.set_page_config(
 inject_css()
 hero()
 
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 if not os.path.exists(DB_PATH):
-    # クラウドデプロイ等の初回起動時は DB を自動生成する（冪等スクリプト）
+    # クラウドデプロイ等の初回起動時は DB を自動生成し、実データも取り込む
     with st.spinner("はじめての起動… 魔法の本を準備しています 📖✨"):
-        import sys
-        sys.path.insert(
-            0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
-        )
-        import generate_dummy_data
+        from scripts import generate_dummy_data, import_real_data
         generate_dummy_data.main()
+        try:
+            import_real_data.main()       # 実測気象・実イベントへ置換
+        except Exception:
+            pass                          # オフライン時はダミーのまま動かす
+
+
+@st.cache_resource(show_spinner=False)
+def _ingest_real_waits() -> int:
+    """蓄積済みの実測待ち時間 CSV を DB へ取り込む（プロセスごとに1回）。"""
+    try:
+        from scripts import merge_real_data
+        return merge_real_data.main(verbose=False)
+    except Exception:
+        return 0
+
+
+_ingest_real_waits()
 
 _WEATHER_ICON = {"晴": "☀️", "曇": "☁️", "雨": "🌧️", "雪": "⛄"}
 
