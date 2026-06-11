@@ -2,8 +2,10 @@ streamlit>=1.35.0
 pandas>=2.2.0
 numpy>=1.26.0
 scipy>=1.12.0
-# 9.13 以降は Windows で CP-SAT solve がクラッシュするため 9.12 系に固定
-ortools==9.12.4544
+# Windows のみ 9.12 に固定（9.13+ は CP-SAT solve がクラッシュ）
+# Linux/クラウドは最新版でOK（9.12 は Python 3.14 の wheel が無い）
+ortools==9.12.4544; sys_platform == "win32"
+ortools>=9.12; sys_platform != "win32"
 plotly>=5.20.0
 requests>=2.31.0
 jpholiday>=0.1.10
