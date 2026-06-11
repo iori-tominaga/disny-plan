@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s /b \"C:\\\\Users\\\\rezer\\\\Documents\\\\work\\\\disny-plan\")",
+      "Bash(gh auth *)",
+      "Bash(git -C /c/Users/rezer/Documents/work/disny-plan status)"
+    ]
+  }
+}
